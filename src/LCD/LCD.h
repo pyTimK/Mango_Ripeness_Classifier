@@ -9,7 +9,6 @@ class LCD {
    public:
     LCD(int addr, int cols, int rows);
     void begin();
-    void update(Status status, float ppm, int measuringTimeLeft, ErrorCode errorCode);
     void clear();
     void print(String str, int line);
     String center(String s);

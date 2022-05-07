@@ -1,8 +1,6 @@
 #ifndef StatusManager_h
 #define StatusManager_h
 
-#include "../LCD/LCD.h"
-#include "../TempSensor/TempSensor.h"
 #include "Arduino.h"
 
 enum Status { CALIBRATING,
@@ -17,22 +15,22 @@ enum ErrorCode { NO_MANGO };
 class StatusManager {
    public:
     StatusManager(int measuring_sec, int showing_error_sec);
-    void begin(TempSensor *tempSensor, LCD *lcd);
-    Status status = CALIBRATING;
-    ErrorCode errorCode = NO_MANGO;
-    void setStatus(Status newStatus);
     void update(bool mangoDetected, bool buttonPressed);
     int getMeasuringTimeLeft();
+    Status getStatus();
+    ErrorCode getErrorCode();
+    void setStatus(Status newStatus);
+    void setErrorCode(ErrorCode newErrorCode);
+    bool isDoneMeasuring();
+    bool isDoneShowingError();
 
    private:
-    TempSensor *_tempSensor;
-    LCD *_lcd;
+    Status _status = CALIBRATING;
+    ErrorCode _errorCode = NO_MANGO;
     unsigned long _startedMeasuring = millis();
     unsigned long _startedShowing = millis();
     int _measuring_sec;
     int _showing_error_sec;
-    bool _isDoneMeasuring();
-    bool _isDoneShowingError();
 };
 
 #endif

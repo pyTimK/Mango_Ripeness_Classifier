@@ -1,21 +1,11 @@
 #ifndef MyLed_h
 #define MyLed_h
 
+#include "../DigitalOutput/DigitalOutput.h"
 #include "Arduino.h"
-
-class MyLed {
+class MyLed : public DigitalOutput {
    public:
     MyLed(int pin);
-    void begin();
-    void on();
-    void off();
-    void toggle();
-    void onIf(bool condition);
-    bool isOn();
-
-   private:
-    int _pin;
-    bool _isOn;
 };
 
 #endif
