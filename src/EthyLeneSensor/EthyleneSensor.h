@@ -22,7 +22,7 @@ class EthyleneSensor {
 
    private:
     int _analog_voltage_pin;
-    float _calibration = 46.9 / 1.366;
+    float _calibration = 46.9 / (1.366 - 0.613);
     SoftwareSerial _ethyleneSerial;
     // WinsenZE03 _ethyleneSensor;
     unsigned long _lastMeasuredPPM = millis();

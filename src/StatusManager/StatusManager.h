@@ -3,8 +3,9 @@
 
 #include "Arduino.h"
 
-enum Status { CALIBRATING,
-              IDLE,
+enum Status { IDLE,
+              CALIBRATING,
+              MANGO_DETECTION,
               MEASURING,
               SHOWING_RESULT,
               SHOWING_ERROR,
@@ -25,7 +26,7 @@ class StatusManager {
     bool isDoneShowingError();
 
    private:
-    Status _status = CALIBRATING;
+    Status _status = IDLE;
     ErrorCode _errorCode = NO_MANGO;
     unsigned long _startedMeasuring = millis();
     unsigned long _startedShowing = millis();

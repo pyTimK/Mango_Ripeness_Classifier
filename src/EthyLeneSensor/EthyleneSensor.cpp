@@ -27,7 +27,7 @@ float EthyleneSensor::getDigitalPPM() {
         return value;
     }
 
-    // _printBuffer(replyBuffer, sizeof(replyBuffer));
+    _printBuffer(replyBuffer, sizeof(replyBuffer));
 
     return (replyBuffer[2] * 256 + replyBuffer[3]) * 0.1;
 }
@@ -43,7 +43,7 @@ void EthyleneSensor::_printBuffer(byte *buffer, int length) {
 float EthyleneSensor::getAnalogPPM() {
     const int rawVoltage = analogRead(_analog_voltage_pin);
     const float voltage = rawVoltage * (5.0 / 1023.0);
-    return voltage * _calibration;
+    return (voltage - 0.613) * _calibration;
 }
 
 float EthyleneSensor::measure() {
@@ -70,6 +70,8 @@ void EthyleneSensor::_initializeQnAMode() {
 
     _ethyleneSerial.write(switchToQnAcommand, sizeof(switchToQnAcommand));
     _ethyleneSerial.readBytes(replyBuffer, sizeof(replyBuffer));
+
+    // _printBuffer(replyBuffer, sizeof(replyBuffer));
 
     for (int i = 0; i < 9; i++) {
         if (replyBuffer[i] != expectedReply[i]) {

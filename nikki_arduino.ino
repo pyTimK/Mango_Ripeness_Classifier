@@ -31,7 +31,7 @@
 #define SHOWING_ERROR_SEC 3
 
 //! THRESHOLDS
-#define TEMP_THRESH 25.0
+#define TEMP_THRESH 30.0
 
 //! ZE03 MEASUREMENT TYPE
 #define IS_ETHYLENE_MEASUREMENT_TYPE_DIGITAL false
@@ -77,11 +77,11 @@ void setup() {
 }
 
 void loop() {
-    //! INPUTS
     Status status = statusManager.getStatus();
     ErrorCode errorCode = statusManager.getErrorCode();
     bool mangoDetected = mangoIRSensor.objectDetected();
 
+    //! INPUTS
     tempUpdate(status);
     ethyleneUpdate(status);
 
@@ -98,7 +98,7 @@ void loop() {
     exhaustFan.onIf(status == CALIBRATING);
 
     redLed.onIf(status == CALIBRATING);
-    blueLed.onIf(status == IDLE && mangoDetected);
+    blueLed.onIf(status == MANGO_DETECTION);
     orangeLed.onIf(status == MEASURING);
     greenLed.onIf(status == SHOWING_RESULT);
 }
@@ -108,10 +108,6 @@ void tempUpdate(Status status) {
     switch (status) {
         case CALIBRATING:
             tempSensor.measure();
-            break;
-
-        case IDLE:
-            tempSensor.intervalMeasure();
             break;
     }
 }
@@ -136,7 +132,8 @@ void LCDUpdate(Status status, ErrorCode errorCode, float ppm, int measuringTimeL
             lcd.print(lcd.center(String(tempSensor.value, 1) + " " + String((char)223) + "C"), 3);
             break;
 
-        case IDLE:
+        case MANGO_DETECTION:
+            lcd.print(lcd.center("Waiting for mango"), 2);
             break;
 
         case SHOWING_ERROR:
@@ -164,28 +161,32 @@ void statusUpdate(Status status, ErrorCode errorCode, bool mangoDetected) {
     const bool buttonPressed = startButton.isPressed();
 
     switch (status) {
-        case CALIBRATING:
-            if (tempSensor.withinThreshold()) {
-                setStatus(IDLE);
+        case IDLE:
+
+            if (buttonPressed) {
+                setStatus(CALIBRATING);
             }
             break;
 
-        case IDLE:
-            if (!tempSensor.withinThreshold()) {
-                setStatus(CALIBRATING);
-            } else if (buttonPressed) {
-                if (mangoDetected) {
-                    setStatus(MEASURING);
+        case CALIBRATING:
+            if (tempSensor.withinThreshold()) {
+                setStatus(MANGO_DETECTION);
+            }
+            break;
 
-                } else {
-                    setStatus(SHOWING_ERROR);
-                    setErrorCode(NO_MANGO);
-                }
+        case MANGO_DETECTION:
+            if (mangoDetected) {
+                setStatus(MEASURING);
+            } else {
+                setStatus(SHOWING_ERROR);
+                setErrorCode(NO_MANGO);
             }
             break;
 
         case SHOWING_ERROR:
-            if ((errorCode == NO_MANGO && mangoDetected) || statusManager.isDoneShowingError()) setStatus(IDLE);
+            if (statusManager.isDoneShowingError()) {
+                setStatus(IDLE);
+            }
             break;
 
         case MEASURING:
